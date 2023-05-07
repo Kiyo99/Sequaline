@@ -73,7 +73,50 @@ app.get("/api/user/:id", function (req, res) {
                 console.log(`Not found: ${typeof (results)}`);
             }
             else {
-                res.send(`Found User: ${JSON.stringify(results)}`);
+                res.send(results[0]);
+                console.log(`Found: ${typeof (results)}`);
+                //results contains rows returned by server
+                // console.log(fields); // fields contains extra meta data about results, if available
+            }
+        }
+    );
+
+});
+
+app.post("/api/login", function (req, res) {
+
+    connection.query(
+        `select * from users where UserID = "${req.body.id}"`,
+        function (err, results, fields) {
+            console.log(JSON.stringify(results));
+            // console.log(err.message);
+            if (JSON.stringify(results) === "[]") {
+                const finalResponse = {
+                    "code": `01`,
+                    "message": `User not found. Make sure ID is correct`,
+                    "data": {}
+                }
+                res.json(finalResponse);
+                console.log(`Not found: ${typeof (results)}`);
+            }
+            else {
+                //The user exists
+                if (results[0]['password'] === req.body.password) {
+                    const finalResponse = {
+                        "code": `00`,
+                        "message": `Login successful`,
+                        "data": results[0]
+                    }
+                    res.json(finalResponse);
+                }
+                else {
+                    const finalResponse = {
+                        "code": `01`,
+                        "message": `Password incorrect`,
+                        "data": {}
+                    }
+                    res.json(finalResponse);
+                }
                 console.log(`Found: ${typeof (results)}`);
                 //results contains rows returned by server
                 // console.log(fields); // fields contains extra meta data about results, if available
